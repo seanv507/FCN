@@ -20,19 +20,20 @@ import os
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 import sys
 import logging
+
 from datetime import datetime
-from fuxictr.utils import load_config, set_logger, print_to_json, print_to_list, delete_model_files
+from fuxictr.utils import load_config, set_logger, print_to_json, print_to_list#, delete_model_files
 from fuxictr.features import FeatureMap
+from fuxictr.pytorch.dataloaders import RankDataLoader
 from fuxictr.pytorch.torch_utils import seed_everything
-from fuxictr.pytorch.dataloaders import H5DataLoader
 from fuxictr.preprocess import FeatureProcessor, build_dataset
-from fuxictr.datasets.kkbox import FeatureProcessor
+# from fuxictr.datasets.kkbox import FeatureProcessor
+from fuxictr.datasets.criteo import CustomizedFeatureProcessor
 import src as model_zoo
 import gc, torch
 import argparse
 import os
 from pathlib import Path
-import os
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 if __name__ == '__main__':
@@ -66,7 +67,7 @@ if __name__ == '__main__':
     model = model_class(feature_map, **params)
     model.count_parameters() # print number of parameters used in model
 
-    train_gen, valid_gen = H5DataLoader(feature_map, stage='train', **params).make_iterator()
+    train_gen, valid_gen = RankDataLoader(feature_map, stage='train', **params).make_iterator()
     model.fit(train_gen, validation_data=valid_gen, **params)
 
     logging.info('****** Validation evaluation ******')
@@ -74,9 +75,9 @@ if __name__ == '__main__':
     del train_gen, valid_gen
     gc.collect()
     
-    logging.info('******** Test evaluation ********')
-    test_gen = H5DataLoader(feature_map, stage='test', **params).make_iterator()
     test_result = {}
+    logging.info('******** Test evaluation ********')
+    test_gen = RankDataLoader(feature_map, stage='test', **params).make_iterator()
     model.testing = True
     if test_gen:
       test_result = model.evaluate(test_gen)
@@ -92,4 +93,3 @@ if __name__ == '__main__':
                     "N.A.", print_to_list(valid_result), print_to_list(test_result)))
 
     model_dir = os.path.join(params["model_root"], feature_map.dataset_id)
-    delete_model_files(model_dir, params["model_id"])

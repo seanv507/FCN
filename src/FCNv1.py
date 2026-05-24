@@ -72,9 +72,7 @@ class FCNv1(BaseModel):
                        "y_s": self.output_activation(lcn_logit)}
         return return_dict
 
-    def add_loss(self, inputs):
-        return_dict = self.forward(inputs)
-        y_true = self.get_labels(inputs)
+    def add_loss(self, return_dict, y_true):
         y_pred = return_dict["y_pred"]
         y_d = return_dict["y_d"]
         y_s = return_dict["y_s"]
