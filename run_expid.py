@@ -94,4 +94,3 @@ if __name__ == '__main__':
                     ' '.join(sys.argv), experiment_id, params['dataset_id'],
                     "N.A.", print_to_list(valid_result), print_to_list(test_result)))
 
-    model_dir = os.path.join(params["model_root"], feature_map.dataset_id)
