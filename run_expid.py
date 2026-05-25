@@ -34,6 +34,7 @@ import gc, torch
 import argparse
 import os
 from pathlib import Path
+import wandb
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 if __name__ == '__main__':
@@ -64,12 +65,13 @@ if __name__ == '__main__':
     logging.info("Feature specs: " + print_to_json(feature_map.features))
     
     model_class = getattr(model_zoo, params['model'])
-    model = model_class(feature_map, **params)
+    wandb_run = wandb.init(project=experiment_id, config=params)
+    model = model_class(feature_map, **params, wandb_run=wandb_run)
     model.count_parameters() # print number of parameters used in model
 
     train_gen, valid_gen = RankDataLoader(feature_map, stage='train', **params).make_iterator()
     model.fit(train_gen, validation_data=valid_gen, **params)
-
+    wandb_run.finish()
     logging.info('****** Validation evaluation ******')
     valid_result = model.evaluate(valid_gen)
     del train_gen, valid_gen
