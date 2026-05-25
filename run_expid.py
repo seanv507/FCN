@@ -51,13 +51,14 @@ if __name__ == '__main__':
     params['gpu'] = args['gpu']
     set_logger(params)
     logging.info("Params: " + print_to_json(params))
+
     seed_everything(seed=params['seed'])
 
     data_dir = os.path.join(params['data_root'], params['dataset_id'])
     feature_map_json = os.path.join(data_dir, "feature_map.json")
-    if params["data_format"] == "csv":
+    if params["data_format"] != "h5":
         # Build feature_map and transform h5 data
-        feature_encoder = FeatureProcessor(**params)
+        feature_encoder = CustomizedFeatureProcessor(**params)
         params["train_data"], params["valid_data"], params["test_data"] = \
             build_dataset(feature_encoder, **params)
     feature_map = FeatureMap(params['dataset_id'], data_dir)
