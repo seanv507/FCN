@@ -1,0 +1,16 @@
+[project]
+name = "pod-template"
+version = "0.1.0"
+description = "Example Runpod template using uv"
+requires-python = ">=3.10"
+dependencies = [
+    "h5py>=3.16.0",
+    "keras-preprocessing>=1.1.2",
+    "numpy>=2.2.6",
+    "pandas>=2.3.3",
+    "polars",
+    "pyarrow>=24.0.0",
+    "pyyaml>=6.0.3",
+    "scikit-learn>=1.7.2",
+    "tqdm>=4.67.3",
+]
