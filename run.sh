@@ -19,14 +19,14 @@ cd /workspace
 mkdir code
 mkdir data
 cd code
-git clone git@github.com:seanv507/FuxiCTR.git
-git clone git@github.com:seanv507/FCN.git
+git clone -b preprocess_polars git@github.com:seanv507/FuxiCTR.git
+git clone -b update_fuxictr_2310 git@github.com:seanv507/FCN.git
 set -o xtrace
 echo "Hello Sean"
 uv pip install --system --break-system-packages -e FuxiCTR
 #uv pip install --system --break-system-packages -e FCN
-uv pip install --system --break-system-packages huggingface_hub
+uv pip install --system --break-system-packages huggingface_hub wandb
 hf download --repo-type dataset seanv507/Criteo --local-dir /workspace/data/Criteo
-
+wandb login $wandb_key
 # Wait for background processes
 wait

@@ -89,7 +89,7 @@ See the Dockerfiles for detailed comments on each option.
    docker build --platform linux/amd64 -t my-template .
 
    # Or using uv
-   docker build --platform linux/amd64 -f Dockerfile.uv -t my-template .
+   docker build --platform linux/amd64 -f Dockerfile.uv -t fcn_runpod:0.0.2 .
    ```
 
 5. Test locally:
@@ -99,7 +99,7 @@ See the Dockerfiles for detailed comments on each option.
    ```
 6. Push to Docker Hub or your container registry for use with Runpod
    ```bash
-   docker tag my-custom-template:v1.0 YOUR_DOCKER_USERNAME/my-custom-template:v1.0
+   docker tag fcn_runpod:0.0.2 seanv507/fcn_runpod:0.0.2
    docker login
    docker push YOUR_DOCKER_USERNAME/my-custom-template:v1.0
    ```
