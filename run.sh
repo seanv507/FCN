@@ -14,7 +14,7 @@ sleep 2
 echo "$GITHUB_SSH" > ~/.ssh/github_ssh && chmod 600 ~/.ssh/github_ssh
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/github_ssh 
-unset $GITHUB_SSH
+unset GITHUB_SSH
 cd /workspace
 mkdir code
 mkdir data
