@@ -20,15 +20,13 @@ import os
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 import sys
 import logging
-
+import importlib
 from datetime import datetime
 from fuxictr.utils import load_config, set_logger, print_to_json, print_to_list#, delete_model_files
 from fuxictr.features import FeatureMap
 from fuxictr.pytorch.dataloaders import RankDataLoader
 from fuxictr.pytorch.torch_utils import seed_everything
 from fuxictr.preprocess import FeatureProcessor, build_dataset
-from fuxictr.datasets.kkbox import CustomizedFeatureProcessor
-#from fuxictr.datasets.criteo import CustomizedFeatureProcessor
 import src as model_zoo
 import gc, torch
 import argparse
@@ -44,6 +42,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', type=str, default='./config/', help='The config directory.')
     parser.add_argument('--expid', type=str, default='ECN_KKBox_csv', help='The experiment id to run.')
     parser.add_argument('--gpu', type=int, default=0, help='The gpu index, -1 for cpu')
+    parser.add_argument('--preprocess',  action='store_true', default=False)
     args = vars(parser.parse_args())
     
     experiment_id = args['expid']
@@ -57,13 +56,22 @@ if __name__ == '__main__':
     data_dir = os.path.join(params['data_root'], params['dataset_id'])
     feature_map_json = os.path.join(data_dir, "feature_map.json")
     # Build feature_map and transform data
-    feature_encoder = CustomizedFeatureProcessor(**params)
+    processor_cls = FeatureProcessor
+    if "customized_feature_processor" in params:
+        module_path, class_name = params["customized_feature_processor"].rsplit(".", 1)
+        logging.info(f"CustomizedFeatureProcessor: path - {module_path} class - {class_name}")
+        processor_cls = getattr(importlib.import_module(module_path), class_name)
+
+    feature_encoder = processor_cls(**params)
+
     params["train_data"], params["valid_data"], params["test_data"] = \
         build_dataset(feature_encoder, **params)
     feature_map = FeatureMap(params['dataset_id'], data_dir)
     feature_map.load(feature_map_json, params)
     logging.info("Feature specs: " + print_to_json(feature_map.features))
-    
+    if args["preprocess"]:
+        logging.info("finished preprocessing - exit")
+        exit(0)
     model_class = getattr(model_zoo, params['model'])
     wandb_run = wandb.init(project=experiment_id, config=params)
     model = model_class(feature_map, **params, wandb_run=wandb_run)

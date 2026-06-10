@@ -59,6 +59,7 @@ Criteo_x4_10_h5:
 Criteo_x4_001:
     data_format: parquet
     data_root: ../../data/Criteo/
+    customized_feature_processor: fuxictr.datasets.criteo.CustomizedFeatureProcessor
     feature_cols:
     -   active: true
         dtype: float
