@@ -1,11 +1,10 @@
 # Use Runpod PyTorch base image
-FROM runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404
-
+FROM runpod/pytorch:1.2.0-cu1300-torch2130-ubuntu2404
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /workspace/code
 
 # Install system dependencies if needed
 RUN apt-get update --yes && \
@@ -14,13 +13,23 @@ RUN apt-get update --yes && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
-RUN pip install --no-cache-dir uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | bash
+
+ENV VIRTUAL_ENV=/opt/.venvs/ML
+# Create virtual environment with uv
+ENV UV_LINK_MODE=copy
+ENV UV_PYTHON_CACHE_DIR=/opt/uv-cache/uv/python
+ENV UV_CACHE_DIR=/opt/uv-cache/
+RUN --mount=type=cache,target=/opt/uv-cache/uv/python \
+    uv venv  ${VIRTUAL_ENV} --seed
+# --python ${PYTHON_VERSION}
+ENV PATH=${VIRTUAL_ENV}/bin:$PATH
 
 # Copy requirements file
 COPY requirements.txt /app/
 
 # Install Python dependencies with uv
-RUN uv pip install --system --break-system-packages -r requirements.txt
+RUN uv pip install  -r /app/requirements.txt
 
 # Copy application files
 #COPY . /app
